@@ -1,0 +1,57 @@
+h1 {
+    text-align: center;
+    color: #76151e;
+    margin-bottom: 20px;
+    font-size: 2.5em;
+}
+
+.notifications-list {
+    list-style-type: none;
+    padding: 10;
+    background-color: antiquewhite ;
+}
+
+.notifications-list li {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: rgba(249, 249, 249, 0.5);
+    
+}
+
+.notifications-list li div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notifications-list li strong {
+    color: red;
+}
+
+.notifications-list li small {
+    color: #666;
+}
+
+.notifications-list li form,
+.notifications-list li a {
+    margin-top: 10px;
+}
+
+.mark-all-read-btn {
+    margin-bottom: 20px;
+    background-color: #76151e;
+    color: #fff;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    max-width: fit-content;
+    width : 30%;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.mark-all-read-btn:hover {
+    background-color: #e64a19;
+}

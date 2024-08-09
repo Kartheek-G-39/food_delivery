@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Profile{% endblock %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1 class="textup">User Profile</h1>
+    <div class="form-box">
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+        {% if profile_form.errors %}
+            <ul class="alert alert-danger" role="alert">
+                {{ profile_form.errors }}
+            </ul>
+        {% endif %}
+        {% if password_form.errors %}
+            <ul class="alert alert-danger" role="alert">
+                {{ password_form.errors }}
+            </ul>
+        {% endif %}
+        <form method="post" action="{% url 'profile' %}" id="profile-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_username">Username:</label>
+                {{ profile_form.username }}
+                <!-- Change Password Button -->
+            </div>
+            <div class="form-group">
+                <label for="id_email">Email:</label>
+                {{ profile_form.email }}
+            </div>
+            <div class="form-group">
+                <label for="id_first_name">First Name:</label>
+                {{ profile_form.first_name }}
+            </div>
+            <div class="form-group">
+                <label for="id_last_name">Last Name:</label>
+                {{ profile_form.last_name }}
+            </div>
+            <button type="submit">Update</button>
+        </form>
+        <br>
+        <br>
+        <button id="edit-password-btn" class="change-password-btn">Change Password</button>
+        <div id="password-form-container" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('edit-password-btn').addEventListener('click', function() {
+            document.getElementById('edit-password-btn').style.display='none'
+            var passwordContainer = document.getElementById('password-form-container');
+    
+            if (passwordContainer.style.display === 'none' || passwordContainer.style.display === '') {
+                // Append the password form dynamically
+                passwordContainer.innerHTML = `
+                    <form method="post" action="{% url 'change_password' %}" id="password-change-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_old_password">Old Password:</label>
+                            {{ password_form.old_password }}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_new_password1">New Password:</label>
+                            {{ password_form.new_password1 }}
+                        </div>
+                        <div class="form-group">
+                            <label for="id_new_password2">Confirm New Password:</label>
+                            {{ password_form.new_password2 }}
+                        </div>
+                        <button type="submit">Change Password</button>
+                    </form>
+                `;
+                passwordContainer.style.display = 'block';
+                // Hide profile form fields
+                document.getElementById('profile-form').style.display = 'none';
+            } else {
+                passwordContainer.style.display = 'none';
+                passwordContainer.innerHTML = ''; // Remove the form from the DOM
+                // Show profile form fields again
+                document.getElementById('profile-form').style.display = 'block';
+            }
+        });
+    </script>
+{% endblock %}

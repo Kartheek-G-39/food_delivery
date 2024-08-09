@@ -1,0 +1,40 @@
+<!-- dummy_payment.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dummy Payment</title>
+</head>
+<body>
+    <h1>Complete Your Order</h1>
+    <p>Total Amount: ₹{{ total_amount }}</p>
+    <form id="dummy-payment-form">
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+        <button type="button" onclick="makePayment()">Pay Now</button>
+    </form>
+
+    <script>
+        function makePayment() {
+            // Simulate a payment delay
+            setTimeout(() => {
+                fetch('/dummy-verify-payment/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({status: 'success',order_id : "{{ order_id }}"})
+                }).then(res => res.json()).then(data => {
+                    if (data.status === 'Payment successful') {
+                        alert('Payment successful!');
+                        window.location.href = '/';  // Redirect to success page
+                    } else {
+                        alert('Payment verification failed.');
+                    }
+                });
+            }, 2000); // Simulate a 2-second delay
+        }
+    </script>
+</body>
+</html>

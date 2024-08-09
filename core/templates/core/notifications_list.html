@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/notification_list.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>Notifications</h1>
+
+<button id="mark-all-read" class="btn btn-success mark-all-read-btn">Mark All as Read</button>
+
+{% if notifications %}
+    <ul class="notifications-list">
+    {% for notification in notifications %}
+        <li>
+            <div>
+                {% if not notification.read %}
+                    <strong>New!</strong>
+                {% endif %}
+                {{ notification.message }}<br>
+                <small>{{ notification.timestamp|date:"F j, Y, g:i a" }}</small>
+            </div>
+            <div>
+                {% if notification.notification_type == 'order' and notification.order.status == 'Accepted by Restaurant' %}
+                    <form method="post" action="{% url 'change_order_status' notification.order_id 'Accepted by Delivery Boy' %}">
+                        {% csrf_token %}
+                        <button type="submit">Accept Order</button>
+                    </form>
+                {% elif not notification.read %}
+                    <a href="{% url 'mark_as_read' notification.id %}">Mark as read</a>
+                {% endif %}
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>You have no notifications.</p>
+{% endif %}
+
+<script>
+    document.getElementById('mark-all-read').addEventListener('click', function() {
+        // Send a POST request to mark all notifications as read
+        fetch("{% url 'mark_all_as_read' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Reload the page to reflect the changes
+                window.location.reload();
+            } else {
+                console.error('Failed to mark all notifications as read');
+            }
+        })
+        .catch(error => {
+            console.error('Error marking all notifications as read:', error);
+        });
+    });
+</script>
+
+{% endblock %}

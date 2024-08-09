@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders{% endblock %}
+
+{% load static %}
+
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/view_orders.css' %}">
+    <link rel="stylesheet" href="{% static 'css/rating.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1 style="color: #76151e;">My Orders</h1>
+
+    {% if orders %}
+        <ul>
+            {% for order in orders %}
+                {% if order.order_items.all %}
+                    <li class="order-container">
+                        <div class="order-details">
+                            <strong>Order ID:</strong> {{ order.id }}<br>
+                            {% if user.user_type != "delivery_boy" %}
+                            <strong>Total Price:</strong> Rs.{{ order.total_price }} /-<br>
+                            {% endif %}
+                            <strong>Ordered Date:</strong> {{ order.order_time|date:"F j, Y, g:i a" }}<br>
+                            {% if order.scheduled_time %}
+                                <strong>Scheduled Date:</strong> {{ order.scheduled_time|date:"F j, Y, g:i a" }}<br>
+                            {% endif %}
+                            <strong>Order Status:</strong> {{ order.status }}<br>
+                            {% if order.status == "Delivered" and order.delivery_time %}
+                                <strong>Delivered Date:</strong> {{ order.delivery_time|date:"F j, Y, g:i a" }}<br>
+                            {% endif %}
+                        </div>
+
+                        <div class="order-items">
+                            <strong>Items:</strong>
+                            <ul>
+                                {% for item in order.order_items.all %}
+                                    <li>
+                                        {{ item.menu_item.item }} - Quantity: {{ item.quantity }}<br>    
+                                        {% if order.status == "Delivered" and user.user_type != "delivery_boy" %}
+                                            {% include "core/order_item_feedback.html" with item=item order=order user=request.user %}
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        {% include "core/order_detail.html" with order=order %}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+
+        <!-- Pagination links -->
+        <div class="pagination">
+            <span class="step-links">
+                {% if orders.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ orders.previous_page_number }}">previous</a>
+                {% endif %}
+
+                <span class="current">
+                    Page {{ orders.number }} of {{ orders.paginator.num_pages }}.
+                </span>
+
+                {% if orders.has_next %}
+                    <a href="?page={{ orders.next_page_number }}">Next</a>
+                    <a href="?page={{ orders.paginator.num_pages }}">Last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+
+    {% else %}
+        <p class="no-orders">You have no orders.</p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Home</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Select a City</h1>
+    <ul>
+        {% for city in cities %}
+            <li><a href="#" class="city-link" data-city="{{ city }}">{{ city }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <h2>Restaurants</h2>
+    <ul id="restaurants-list">
+        <!-- Restaurants will be populated here -->
+    </ul>
+
+    <script>
+        $(document).ready(function() {
+            $('.city-link').on('click', function(e) {
+                e.preventDefault();
+                const city = $(this).data('city');
+                $.ajax({
+                    url: `/api/restaurants/${city}/`,
+                    method: 'GET',
+                    success: function(data) {
+                        $('#restaurants-list').empty();
+                        data.forEach(function(restaurant) {
+                            $('#restaurants-list').append(`<li><a href="/menu_items/${restaurant.user}/">${restaurant.name}</a></li>`);
+                        });
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

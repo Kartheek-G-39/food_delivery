@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Register{% endblock %}
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/register.css' %}">
+{% endblock %}
+<!-- Mapbox JavaScript SDK -->
+
+{% block content %}
+{{ restaurant }}
+{% if not error_user_form.errors and not user_form.errors %}
+<div class="selection-container" id="selection-container">
+    <div class="selection-option" onclick="loadForm('restaurant')">
+        <div class="background-image restaurant-image"></div>
+        <div class="option-text">
+            <h2>Do you want to serve with us?</h2>
+            <p>Register as a Restaurant</p>
+        </div>
+    </div>
+    <div class="selection-option" onclick="loadForm('delivery_boy')">
+        <div class="background-image delivery-boy-image"></div>
+        <div class="option-text">
+            <h2>Do you want to deliver with us?</h2>
+            <p>Register as a Delivery Boy</p>
+        </div>
+    </div>
+    <div class="selection-option" onclick="loadForm('customer')">
+        <div class="background-image customer-image"></div>
+        <div class="option-text">
+            <h2>Do you want to fill your hunger?</h2>
+            <p>Register as a Customer</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div id="registration-form" {% if error_form.errors or error_user_form.errors %} style="display: block;" {% else %} style="display: none" {% endif %}>
+    <h1>Register</h1>
+    <form method="post" enctype="multipart/form-data" id="dynamic-form">
+        <div id="extra-forms">
+            <div id="error-form">
+                {% if error_form.errors %}
+                    <ul class="alert alert-danger" role="alert">
+                        {{ error_form.errors }}
+                    </ul>
+                {% endif %}
+                {% if error_user_form.errors %}
+                    <ul class="alert alert-danger" role="alert">
+                        {{ error_user_form.errors }}
+                    </ul>
+                {% endif %}
+            </div>
+            {% if error_form.errors or error_user_form.errors %} 
+                {{ error_form.as_p }} 
+                {{ error_user_form.as_p }}
+            {% endif %}
+        </div>
+        <div class="map-container" id="map-container"><label for="map">Choose your Restaurant Location</label>
+        <div id="map"></div>
+        </div>
+        <input type="hidden" name="user_type" id="user_type" value="{{ user_type }}" >
+        <button type="submit">Register</button>
+    </form>
+    <a href="{% url 'login' %}">Login</a>
+</div>
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css' rel='stylesheet' />
+<script>
+    const extraFormsDiv = document.getElementById('extra-forms');
+    const registrationForm = document.getElementById('registration-form');
+    const selectionContainer = document.getElementById('selection-container');
+    const dynamicForm = document.getElementById('dynamic-form');
+    const userTypeInput = document.getElementById('user_type');
+
+    function loadForm(userType) {
+        selectionContainer.style.display = 'none';
+        registrationForm.style.display = 'block';
+
+        let csrfToken = `{% csrf_token %}`;
+        let userForm = `{{ user_form.as_p|escapejs }}`;
+
+        let extraFormContent = '';
+        if (userType === 'restaurant') {
+            extraFormContent = `{{ restaurant_form.as_p|escapejs }}`;
+            userTypeInput.value = 'restaurant';
+        } else if (userType === 'customer') {
+            $('.map-container').hide();
+            extraFormContent = `{{ customer_form.as_p|escapejs }}`;
+            userTypeInput.value = 'customer';
+        } else if (userType === 'delivery_boy') {
+            $('.map-container').hide();
+            extraFormContent = `{{ delivery_boy_form.as_p|escapejs }}`;
+            userTypeInput.value = 'delivery_boy';
+        }
+
+        // Update the form action URL
+        dynamicForm.setAttribute('action', `{% url 'register' %}`);
+        extraFormsDiv.innerHTML = csrfToken + userForm + extraFormContent;
+        if (userTypeInput.value == 'restaurant'){
+            document.getElementById("map-container").style.display = 'block';
+            mapboxgl.accessToken = 'pk.eyJ1Ijoia2FydGhpaSIsImEiOiJjbHg2aTg2YnkxczZ5MnJxdTQybmJjeWowIn0.sW_5KhQrSjzuIDlu1m8OHw';
+                    // Initialize the map without a set center or zoom level
+                var map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/streets-v11',
+                    center: [14.644, 74.397],
+                    zoom: 6
+                });
+                if (navigator.geolocation){
+                    
+                    navigator.geolocation.getCurrentPosition(position => {
+                        const { latitude, longitude } = position.coords;
+                        fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.features && data.features.length > 0) {
+                                    const placeName = data.features[0].place_name;
+                                    document.getElementById('id_longitude').value = longitude; 
+                                    document.getElementById('id_latitude').value = latitude; 
+                                    console.log(placeName,longitude,latitude)
+                                    setMapCenter(longitude, latitude);
+                                }
+                            });
+                    });
+                } else{
+                    alert("Unable to fetch your current location please use map to continue")
+                }
+
+                const marker = new mapboxgl.Marker({
+                    draggable: true
+                })
+                .setLngLat([150.644, -34.397])
+                .addTo(map);
+
+
+                // Function to set the map center and marker position
+                function setMapCenter(lng, lat) {
+                    map.setCenter([lng, lat]);
+                    map.setZoom(15);
+                    marker.setLngLat([lng, lat]);
+                }
+
+                // Get the current location
+
+                // Update coordinates field when marker is dragged
+                marker.on('dragend', function() {
+                    var lngLat = marker.getLngLat();
+                    document.getElementById('id_longitude').value = lngLat.lng; 
+                    document.getElementById('id_latitude').value = lngLat.lat; 
+
+                });
+        }
+    }
+        {% if restaurant %}
+        mapboxgl.accessToken = 'pk.eyJ1Ijoia2FydGhpaSIsImEiOiJjbHg2aTg2YnkxczZ5MnJxdTQybmJjeWowIn0.sW_5KhQrSjzuIDlu1m8OHw';
+                // Initialize the map without a set center or zoom level
+            var map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [14.644, 74.397],
+                zoom: 6
+            });
+            if (navigator.geolocation){
+                
+                navigator.geolocation.getCurrentPosition(position => {
+                    const { latitude, longitude } = position.coords;
+                    fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.features && data.features.length > 0) {
+                                const placeName = data.features[0].place_name;
+                                document.getElementById('id_longitude').value = longitude; 
+                                document.getElementById('id_latitude').value = latitude; 
+                                console.log(placeName,longitude,latitude)
+                                setMapCenter(longitude, latitude);
+                            }
+                        });
+                });
+            } else{
+                alert("Unable to fetch your current location please use map to continue")
+            }
+
+            const marker = new mapboxgl.Marker({
+                draggable: true
+            })
+            .setLngLat([150.644, -34.397])
+            .addTo(map);
+
+
+            // Function to set the map center and marker position
+            function setMapCenter(lng, lat) {
+                map.setCenter([lng, lat]);
+                map.setZoom(15);
+                marker.setLngLat([lng, lat]);
+            }
+
+            // Get the current location
+
+            // Update coordinates field when marker is dragged
+            marker.on('dragend', function() {
+                var lngLat = marker.getLngLat();
+                document.getElementById('id_longitude').value = lngLat.lng; 
+                document.getElementById('id_latitude').value = lngLat.lat; 
+
+            });
+        {% else %}
+            document.getElementById("map-container").style.display = 'none';
+       {% endif %}
+</script>
+{% endblock %}

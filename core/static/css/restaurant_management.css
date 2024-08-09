@@ -1,0 +1,103 @@
+
+/* Form Styles */
+.form-box {
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    width: 500px;
+    max-width: 100%;
+    margin: 20px auto;
+}
+
+form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+
+
+form p {
+    margin-bottom: 15px;
+}
+
+form input[type="text"],
+form select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 17px;
+    color: #0b760b;
+    font-weight: 600;
+}
+
+
+a.button {
+    background-color: rgb(118, 21, 30);
+    color: #fff;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+    width: 100%;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  
+  a.button:hover {
+    background-color: #ff5722;
+  }
+a.button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(118, 21, 30, 0.5);
+}
+
+h1{
+    text-align: center;
+}
+
+.current-menu-container {
+    background-color: rgba(255, 255, 255, 0.8); /* Transparent white background */
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative; /* Ensure z-index works properly */
+    z-index: 1; /* Lift container above background */
+}
+
+.current-menu-container h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.current-menu-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.current-menu-list li {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.current-menu-list li:hover {
+    background-color: #e9ecef;
+}

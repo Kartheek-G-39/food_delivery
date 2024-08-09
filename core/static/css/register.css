@@ -1,0 +1,175 @@
+/* static/css/select_registration_type.css */
+
+.selection-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    margin-top: 50px;
+    background-color: #f4f4f4;
+    min-height: 100vh;
+    align-items: center;
+    justify-items: center;
+}
+
+.selection-option {
+    position: relative;
+    width: 100%;
+    max-width: 350px;
+    height: 300px;
+    cursor: pointer;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.selection-option:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.background-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.7);
+    transition: filter 0.3s ease;
+}
+
+.selection-option:hover .background-image {
+    filter: brightness(0.5);
+}
+
+.option-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 1;
+}
+
+.option-text h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.option-text p {
+    font-size: 18px;
+}
+
+.restaurant-image {
+    background-image: url('../images/restaurantregister.jpg');
+}
+
+.delivery-boy-image {
+    background-image: url('../images/delivery-boyregister.jpg');
+}
+
+.customer-image {
+    background-image: url('../images/customerregister.jpg');
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .selection-option {
+        height: 250px;
+    }
+
+    .option-text h2 {
+        font-size: 20px;
+    }
+
+    .option-text p {
+        font-size: 16px;
+    }
+}
+
+/* static/css/register.css */
+
+#registration-form {
+    background-color: white;
+    padding: 40px;
+    margin: 0 auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    max-width: 600px;
+}
+
+#registration-form h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: #333;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form div {
+    margin-bottom: 15px;
+}
+
+form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+    color: #333;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+form button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #45a049;
+}
+
+form a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+form a:hover {
+    text-decoration: underline;
+}
+
+#map{
+    height: 400px;
+    width: 100% ;
+
+}
+
+form label .required {
+	color: #e32;
+	content: '*';
+	display:inline;
+	font-weight: bold;
+}

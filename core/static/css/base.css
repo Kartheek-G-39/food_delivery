@@ -1,0 +1,290 @@
+/* Global Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    margin: 0;
+    padding-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-image: url('../images/backgroundimage.png');
+    background-size: cover; /* Cover the entire screen */
+    background-repeat: no-repeat; /* Do not repeat the background image */
+    background-attachment: fixed; /* Fixed position to prevent scrolling */
+    /* background-position: ; */
+}
+
+
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+    font-size: revert;
+}
+
+footer {
+    background-color: #fff;
+    color: #777;
+    text-align: center;
+    padding: 10px 0;
+    position: relative;
+    height: 20vh;
+    z-index: 1; /* Ensure footer is above body background */
+
+}
+
+main {
+    flex: 1;
+}
+
+button[type="submit"] {
+    background-color: #76151e;
+    color: #fff;
+    padding: 12px;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer; 
+    width: 100%;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #ff5722;
+}
+
+.navbar-brand img {
+    width: 40px;
+    height: 40px;
+    margin-left: 15px;
+}
+
+.navbar-nav .nav-link {
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #ff5722;
+}
+
+.nav-logo{
+    display: flex;
+}
+.nav-logo h1{
+    font-size: 220%;
+    font-family: monospace;
+    cursor: pointer;
+    padding-block-start: 10px;
+    font-variant-caps: petite-caps;
+}
+
+footer {
+    /* Existing styles */
+    height: 60px; /* Set base height */
+    padding: 7px 20px; /* Reduce padding for all sides */
+  }
+
+  #google_translate_element{
+    font: optional;
+  }
+
+  .extra-header {
+    display: flex; /* Enable flexbox for the main container */
+    justify-content: space-between; /* Align content horizontally */
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+    font-family: fantasy;
+
+    font-size: revert;
+    overflow: auto; /* Align content vertically (center) */
+  }
+  h1{
+    color: #76151e;
+    font-family: fantasy;
+  }
+
+  .status-toggle {
+    display: flex;
+    align-items: center;
+}
+
+.status-checkbox {
+    display: none;
+}
+
+.toggle-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    background-color: #ccc;
+    border-radius: 34px;
+    padding: 5px;
+    position: relative;
+    transition: background-color 0.3s;
+}
+
+.toggle-label::before {
+    content: '';
+    width: 20px;
+    margin-left: 10px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    left: 5px;
+    transition: transform 0.3s;
+}
+
+
+.status-checkbox:checked + .toggle-label {
+    background-color: #4caf50;
+}
+
+.status-checkbox:checked + .toggle-label::before {
+    transform: translateX(250%);
+}
+
+.status-text {
+    margin-left: 20px;
+    color: white;
+    margin-right: 20px;
+    font-size: 14px;
+}
+
+/* Position toast notifications */
+.toast-container {
+    position: fixed;
+    top: 70px; /* Adjust top position based on your header height */
+    right: 20px;
+    z-index: 1000;
+    width: 300px; /* Set width as needed */
+}
+
+/* Style for toast notifications */
+.toast {
+    position: relative;
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* Style close button */
+.toast .close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.toast .close:focus {
+    outline: none;
+}
+
+/* Style for different types of alerts */
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.notification-container {
+    position: fixed;
+    top: 70px; /* Adjust top position based on your header height */
+    right: 20px;
+    z-index: 1000;
+    width: 300px; /* Set width as needed */
+}
+
+.notification {
+    position: relative;
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    background-color: rgb(88, 245, 88,0.6);
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.notification .close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.notification .close:focus {
+    outline: none;
+}
+
+form .required label {
+	color: #e32;
+	content: '*';
+	display:inline;
+	font-weight: bold;
+}
+
+/* Style the container of the Google Translate widget */
+.goog-te-gadget {
+    font-family: Arial, sans-serif; /* Change the font */
+    font-size: 14px; /* Change the font size */
+    color: #333; /* Change the text color */
+    background-color: #f9f9f9; /* Change the background color */
+    border: 1px solid #ddd; /* Add a border */
+    padding: 10px; /* Add some padding */
+    border-radius: 5px; /* Round the corners */
+  }
+  
+  /* Style the dropdown (combo box) */
+  .goog-te-combo {
+    font-family: inherit; /* Inherit font from parent */
+    font-size: inherit; /* Inherit font size from parent */
+    color: #333; /* Change the text color */
+    background-color: #fff; /* Change the background color */
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 3px; /* Round the corners */
+    padding: 5px; /* Add some padding */
+    margin-left: 10px; /* Add some margin to the left */
+  }
+  
+  /* Optionally, add a hover effect for the dropdown */
+  .goog-te-combo:hover {
+    border-color: #aaa; /* Change the border color on hover */
+  }
+  
+  /* Style the text within the dropdown */
+  .goog-te-combo option {
+    color: #333; /* Change the text color */
+    background-color: #fff; /* Change the background color */
+  }
+
+  
+  

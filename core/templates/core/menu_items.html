@@ -1,0 +1,437 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/customer_home.css' %}">
+<link rel="stylesheet" href="{% static 'css/menu_items.css' %}">
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.css' rel='stylesheet' />
+<link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css"
+    type="text/css"
+/>
+
+{% endblock %}
+{% block content %}
+    <div class="menu-cart-container">
+    <h1 style="color: #8f4e39;">{{ restaurant.name }} - {{ restaurant.city }}</h1>
+
+    <header class="header">
+        <h1 >Browse Menu</h1>
+        <a href="#" id="cart-icon" class="cart-icon" style="max-width:12vh ; padding-bottom: 17px;">
+            <img src="{% static 'images/cart-icon.png' %}" alt="Cart">
+            <span id="cart-item-count">0</span>
+            <span id="cart-name">View Cart</span>
+        </a>
+    </header>
+
+    <!-- Menu selector -->
+    <div class="menu-selector">
+        {% for menu in restaurant.menus.all %}
+        <a href="#" class="menu-link" data-menu-id="{{ menu.id }}">{{ menu.name }}</a>
+        {% endfor %}
+    </div>
+
+    <!-- Menu items containers -->
+    {% for menu in restaurant.menus.all %}
+    <div class="menu-items-container" id="menu-items-{{ menu.id }}">
+        {% for item in menu.menu_items.all %}
+        <div class="menu-item">
+            <div class="item-details">
+                <div class="item-name">{{ item.item }}</div>
+                {% if item.veg_or_non_veg == 'Veg' %}
+                <span class="fas fa-seedling vegetarian-icon"></span> 
+                {% else %}
+                <span class="fas fa-drumstick-bite non-vegetarian-icon"></span> 
+                {% endif %}
+                <div class="item-price">{{ item.price }}</div>
+            </div>
+            <button class="add-to-cart"
+                    data-item-id="{{ item.id }}"
+                    data-item-name="{{ item.item }}"
+                    data-item-price="{{ item.price }}">+</button>
+            <span id="quantity-{{ item.id }}">0</span>
+            <button class="remove-from-cart"
+                    data-item-id="{{ item.id }}"
+                    data-item-price="{{ item.price }}">-</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+    <div id="cart-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-symbol-cart">&times;</span>
+            <h2>Cart Items</h2>
+            <ul id="cart-items-list"></ul>
+            <div id="cart-value">Items: 0 - Total: 0.00</div>
+            <button id="place-order-btn">Place Order</button>
+        </div>
+    </div>
+
+<!-- Modal for Order Options -->
+<div id="order-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Order Options</h2>
+        <form id="order-form">
+            <label>
+                <input type="radio" name="order-type" value="immediate" checked>
+                Order Now
+            </label>
+            <label>
+                <input type="radio" name="order-type" value="preorder">
+                Pre-order
+            </label>
+            <div id="preorder-date-container" style="display: none;">
+                <label for="preorder-date">Choose Date and Time:</label>
+                <input type="datetime-local" id="preorder-date" name="preorder-date">
+            </div>
+            <div class="address-field">
+                <label for="pin-code">Name:</label>
+                <input type="text" id="pin-code" name="pin-code" placeholder="{{ request.user.username }}">
+            </div>
+            <div class="address-field">
+                <label for="street">Street:</label>
+                <input type="text" id="street" name="street">
+            </div>
+            <div class="address-field">
+                <label for="house-number">House Number:</label>
+                <input type="text" id="house-number" name="house-number">
+            </div>
+            <div class="address-field">
+                <label for="phone-number">Phone Number:</label>
+                <input type="text" id="phone-number" placeholder="{{ request.user.customer.phone_number }}" name="phone-number">
+            </div>
+            <div id="map-container">
+                <input id="search-button" type="text" placeholder="Search location...">
+                <button id="fetchbutton" type="button">Current Location</button>
+                <div id="map"></div>
+                <div id="location-link"></div>
+            </div>
+            <button type="submit">Confirm Order</button>
+        </form>
+    </div>
+</div>
+
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.8.1/mapbox-gl.js'></script>
+<script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js'></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function selectFirstMenuItem() {
+            const firstMenuLink = document.querySelector('.menu-link');
+            if (firstMenuLink) {
+                firstMenuLink.click();
+            }
+        }
+        const cartItemsList = document.getElementById('cart-items-list');
+        const cartValue = document.getElementById('cart-value');
+        const fetchLocationButton = document.getElementById('fetchbutton');
+        const searchInput = document.getElementById('search-button');
+        const cartIcon = document.getElementById('cart-icon');
+        const closeButton = document.getElementById('close-symbol-cart'); // Replace with your element's ID
+
+        closeButton.addEventListener('click', function() {
+            document.getElementById('cart-modal').style.display = 'none';
+        });
+        var selectedItems = [];
+        let totalPrice = 0;
+        
+        cartIcon.addEventListener('click', function() {
+            document.getElementById('cart-modal').style.display = 'block';
+        });
+
+        mapboxgl.accessToken = 'pk.eyJ1Ijoia2FydGhpaSIsImEiOiJjbHg2aTg2YnkxczZ5MnJxdTQybmJjeWowIn0.sW_5KhQrSjzuIDlu1m8OHw';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [150.644, -34.397],
+            zoom: 6
+        });
+
+        navigator.geolocation.getCurrentPosition(position => {
+            const { latitude, longitude } = position.coords;
+            fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.features && data.features.length > 0) {
+                        const placeName = data.features[0].place_name;
+                        const locationLink = `https://www.mapbox.com/directions?coordinates=${latitude},${longitude}`;
+                        marker.setLngLat([longitude, latitude]);
+                        map.flyTo({ center: [longitude, latitude] });
+                        document.getElementById("location-link").innerHTML = `<a href="${locationLink}" target="_blank">${placeName}</a>`;
+                    }
+                });
+        });
+
+        const marker = new mapboxgl.Marker({
+            draggable: true
+        })
+        .setLngLat([150.644, -34.397])
+        .addTo(map);
+
+        function onDragEnd() {
+            const lngLat = marker.getLngLat();
+            const longitude = lngLat.lng;
+            const latitude = lngLat.lat;
+
+            fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.features && data.features.length > 0) {
+                        const placeName = data.features[0].place_name;
+                        const locationLink = `https://www.mapbox.com/directions?coordinates=${longitude},${latitude}`;
+                        document.getElementById("location-link").innerHTML = `<a href="${locationLink}" target="_blank">${placeName}</a>`;
+                    } else {
+                        document.getElementById("location-link").innerHTML = 'Location not found';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching location data:', error);
+                    document.getElementById("location-link").innerHTML = 'Error fetching location';
+                });
+        }
+
+        marker.on('dragend', onDragEnd);
+
+        const geocoder = new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl,
+            countries: 'in',
+        });
+
+        searchInput.parentNode.insertBefore(geocoder.onAdd(map), searchInput.nextSibling);
+        searchInput.style.display = "none";
+
+        const options = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
+
+        fetchLocationButton.addEventListener('click', () => {
+            navigator.geolocation.getCurrentPosition(position => {
+                const { latitude, longitude } = position.coords;
+                fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${mapboxgl.accessToken}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.features && data.features.length > 0) {
+                            const placeName = data.features[0].place_name;
+                            const locationLink = `https://www.mapbox.com/directions?coordinates=${latitude},${longitude}`;
+                            marker.setLngLat([longitude, latitude]);
+                            map.flyTo({ center: [longitude, latitude] });
+                            document.getElementById("location-link").innerHTML = `<a href="${locationLink}" target="_blank">${placeName}</a>`;
+                        }
+                    });
+
+            }, error => {
+                // Handle error response here
+                console.error('Error getting location:', error);
+            }, options);
+
+        });
+
+        geocoder.on('result', function (e) {
+            const { coordinates } = e.result.geometry;
+            const placeName = e.result.place_name;
+            const center = coordinates;
+            const locationLink = `https://www.mapbox.com/directions?coordinates=${center[0]},${center[1]}`;
+            marker.setLngLat(center);
+            map.flyTo({ center: center });
+            document.getElementById("location-link").innerHTML = `<a href="${locationLink}" target="_blank">${placeName}</a>`;
+        });
+
+// Function to add an item to the cart
+        function addItemToCart(item) {
+            const quantityElement = document.getElementById(`quantity-${item.id}`);
+            const existingItem = selectedItems.find(i => i.id === item.id);
+            if (existingItem) {
+                existingItem.quantity++;
+                if (quantityElement) {
+                    quantityElement.textContent = existingItem.quantity;
+                }
+            } else {
+                selectedItems.push({ ...item, quantity: 1 });
+                if (quantityElement) {
+                    quantityElement.textContent = 1;
+                }
+            }
+            updateCart();
+        }
+
+// Function to decrement the quantity of an item in the cart
+        function decrementQuantity(itemId) {
+            const quantityElement = document.getElementById(`quantity-${itemId}`);
+            const item = selectedItems.find(i => i.id === itemId);
+            if (item && item.quantity > 0) {
+                item.quantity--;
+                if (quantityElement) {
+                    quantityElement.textContent = item.quantity;
+                }
+                if (item.quantity === 0) {
+                    removeItemFromCart(itemId);
+                } else {
+                    updateCart();
+                }
+            }
+        }
+
+// Function to remove an item from the cart
+        function removeItemFromCart(itemId) {
+            const quantityElement = document.getElementById(`quantity-${itemId}`);
+            if (quantityElement) {
+                quantityElement.textContent = 0;
+            }
+            selectedItems = selectedItems.filter(i => i.id !== itemId);
+            updateCart();
+        }
+
+// Function to update the cart display
+        function updateCart() {
+            cartItemsList.innerHTML = ''; // Clear existing items
+            let totalCount = 0;
+
+            // Iterate over selected items and add them to the cart
+            selectedItems.forEach(item => {
+                if (item.quantity > 0) {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.name} - Quantity: ${item.quantity} - Total Price: ${(item.price * item.quantity).toFixed(2)}`;
+
+                    // Add buttons to increment and decrement quantity
+                    const incButton = document.createElement('button');
+                    incButton.textContent = '+';
+                    incButton.addEventListener('click', () => addItemToCart(item));
+
+                    const decButton = document.createElement('button');
+                    decButton.textContent = '-';
+                    decButton.addEventListener('click', () => decrementQuantity(item.id));
+
+                    // Add a button to remove the item from the cart
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove';
+                    removeButton.class = "remove-from-cart";
+                    removeButton.addEventListener('click', () => removeItemFromCart(item.id));
+
+                    li.appendChild(incButton);
+                    li.appendChild(decButton);
+                    li.appendChild(removeButton);
+
+                    cartItemsList.appendChild(li);
+
+                    totalCount += item.quantity;
+                }
+            });
+            totalPrice = selectedItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+            document.getElementById("cart-item-count").textContent= totalCount ;
+            if(cartValue){
+            cartValue.textContent = `Items: ${totalCount} - Total: ${totalPrice.toFixed(2)}`;
+            }
+        }
+
+// Event listener for adding item to cart
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', () => {
+            const itemId = button.dataset.itemId;
+            const itemName = button.dataset.itemName;
+            const itemPrice = parseFloat(button.dataset.itemPrice);
+            addItemToCart({ id: itemId, name: itemName, price: itemPrice });
+        });
+    });
+
+// Event listener for removing item from cart
+    document.querySelectorAll('.remove-from-cart').forEach(button => {
+        button.addEventListener('click', () => {
+            const itemId = button.dataset.itemId;
+            decrementQuantity(itemId);
+    });
+    });
+
+// Place Order button click event
+    document.getElementById('place-order-btn').addEventListener('click', function () {
+    const orderModal = document.getElementById('order-modal');
+    orderModal.style.display = 'block';
+    orderModal.querySelector('.close').addEventListener('click', function () {
+            orderModal.style.display = 'none';
+        });
+    });
+
+        // Toggle pre-order date input based on order type
+        document.querySelectorAll('input[name="order-type"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const preorderDateContainer = document.getElementById('preorder-date-container');
+            preorderDateContainer.style.display = this.value === 'preorder' ? 'block' : 'none';
+        });
+        });
+
+        // Order form submission
+        document.getElementById('order-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const preorderDate = document.querySelector('input[name="order-type"]:checked').value === 'preorder' ? document.getElementById('preorder-date').value : null;
+    const houseNumber = document.getElementById('house-number').value || null;
+    const street = document.getElementById('street').value || null;
+    const customerName = document.getElementById('pin-code').value || null;
+    const phoneNumber = document.getElementById('phone-number').value || null;
+    const locationLinkTag = document.querySelector("#location-link a");
+    const locationLink = locationLinkTag ? locationLinkTag.href : '';
+    console.log(locationLink, 'loc');
+
+    if (!locationLink) {
+        alert("Please select a location on the map.");
+        return;
+    }
+    const address = `${customerName}, ${houseNumber}, ${street}`;
+        const orderData = {
+            items: selectedItems,
+            preorderDate: preorderDate,
+            price: totalPrice.toFixed(2),
+            restaurant_id: "{{ restaurant.id }}",
+            delivery_address: address,
+            location_link: locationLink,
+            phone_number: phoneNumber,
+        };
+        // Send the order data to the server
+        fetch('/api/place_order/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}', // Adjust this as per your CSRF token setup
+            },
+            body: JSON.stringify(orderData),
+        })
+            .then(response => response.json())
+            .then(data => {
+                const orderId = data.order_id;
+                alert('Redirecting to Payment Page!');
+                // Clear the cart and update UI
+                window.location.href = `/dummy-payment/${orderId}`;
+    })
+        .catch(error => {
+            console.error('Error placing order:', error);
+        });
+    });
+
+        // Initial cart update
+    updateCart();
+
+        // Menu selector functionality
+    document.querySelectorAll('.menu-link').forEach(link => {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            const menuId = link.getAttribute('data-menu-id');
+            const menuItemsContainer = document.getElementById(`menu-items-${menuId}`);
+
+            // Toggle active class for menu links
+            document.querySelectorAll('.menu-link').forEach(menuLink => {
+                menuLink.classList.remove('selected');
+            });
+            link.classList.add('selected');
+
+            // Toggle active class for menu items container
+            document.querySelectorAll('.menu-items-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            menuItemsContainer.classList.add('active');
+            });
+        });
+        selectFirstMenuItem();
+    });
+</script>
+{% endblock %} 

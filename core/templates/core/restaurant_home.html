@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/restaurant_home.css' %}">
+<link rel="stylesheet" href="{% static 'css/view_orders.css' %}">
+{% endblock %}
+
+{% block header %}
+  <h1>Welcome, {{ request.user.restaurant.name }}!</h1>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 left-sidebar">
+            <div class="current-orders">
+                <h3>Current Orders</h3>
+                <ul class="order-list">
+                    {% for order in current_orders %}
+                        {% if order.order_items.all %}
+                            <li>
+                                <strong>Order ID:</strong> {{ order.id }}<br>
+                                <strong>Total Price:</strong> Rs.{{ order.total_price }} /-<br>
+                                <strong>Ordered Date:</strong> {{ order.order_time|date:"F j, Y, g:i a" }}<br>
+                                {% if order.scheduled_time %}
+                                    <strong>Scheduled Date:</strong> {{ order.scheduled_time|date:"F j, Y, g:i a" }}<br>
+                                {% endif %}
+                                <strong>Order Status:</strong> {{ order.status }}<br>
+                                {% if order.status == "Delivered" and order.delivery_time %}
+                                    <strong>Delivered Date:</strong> {{ order.delivery_time|date:"F j, Y, g:i a" }}<br>
+                                {% endif %}
+                                <strong>Items:</strong>
+                                <ul>
+                                    {% for item in order.order_items.all %}
+                                        <li>
+                                            {{ item.menu_item.item }} - Quantity: {{ item.quantity }}<br>
+                                            {% if order.status == "Delivered" %}
+                                                {% include "core/order_item_feedback.html" with item=item order=order user=request.user %}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                    {% include "core/order_detail.html" with order=order %}
+                                </ul>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+  
+            <div class="notifications">
+                <h3>Notifications</h3>
+                <ul class="notification-list">
+                    {% for notification in last_five_notifications %}
+                        <li>
+                            <span class="notification-type">{{ notification.notification_type }}</span> - {{ notification.message }}
+                        </li>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'notifications' %}" class="button">View All</a>
+            </div>
+        </div>
+  
+        <div class="col-md-8 right-content">
+            <div class="past-orders">
+                <h3>Past Orders</h3>
+                <ul class="order-list">
+                    {% for order in past_orders %}
+                        {% if order.order_items.all %}
+                            <li>
+                                <strong>Order ID:</strong> {{ order.id }}<br>
+                                <strong>Total Price:</strong> Rs.{{ order.total_price }} /-<br>
+                                <strong>Ordered Date:</strong> {{ order.order_time|date:"F j, Y, g:i a" }}<br>
+                                {% if order.scheduled_time %}
+                                    <strong>Scheduled Date:</strong> {{ order.scheduled_time|date:"F j, Y, g:i a" }}<br>
+                                {% endif %}
+                                <strong>Order Status:</strong> {{ order.status }}<br>
+                                {% if order.status == "Delivered" and order.delivery_time %}
+                                    <strong>Delivered Date:</strong> {{ order.delivery_time|date:"F j, Y, g:i a" }}<br>
+                                {% endif %}
+                                <strong>Items:</strong>
+                                <ul>
+                                    {% for item in order.order_items.all %}
+                                        <li>
+                                            {{ item.menu_item.item }} - Quantity: {{ item.quantity }}<br>
+                                            {% if order.status == "Delivered" %}
+                                                {% include "core/order_item_feedback.html" with item=item order=order user=request.user %}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                    {% include "core/order_detail.html" with order=order %}
+                                </ul>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                <div class="pagination">
+                    {% if past_orders.has_previous %}
+                        <button onclick="window.location='{{ request.path }}?page={{ past_orders.previous_page_number }}'">Prev</button>
+                    {% endif %}
+                    {% for num in past_orders.paginator.page_range %}
+                        {% if past_orders.number == num %}
+                            <button class="current-page">{{ num }}</button>
+                        {% else %}
+                            <button onclick="window.location='{{ request.path }}?page={{ num }}'">{{ num }}</button>
+                        {% endif %}
+                    {% endfor %}
+                    {% if past_orders.has_next %}
+                        <button onclick="window.location='{{ request.path }}?page={{ past_orders.next_page_number }}'">Next</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

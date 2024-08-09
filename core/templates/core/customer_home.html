@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/customer_home.css' %}">
+{% endblock %}
+{% block content %}
+    <h1 style="color: #662510;" id="header-content">Welcome,
+        {% if user.first_name %}
+            {{ user.first_name }}
+        {% else %}
+            {{ user.username }}
+        {% endif %}
+    !</h1>
+
+    <div id="city-selection">
+        <h2 style="display: none;" class="restaurants" id="restaurants" >Restaurants in <span id="city-name"></span></h2>
+        <input type="text" id="search-input" placeholder="Search restaurants...">
+    </div>
+
+{% load core.filters %}
+    <div class="cities group">
+        {% for city in cities %}
+            <button type="button" class="city-link" data-city="{{ city }}">{{ city }}</button>
+        {% endfor %}
+    </div>
+    <div id="loading" style="display: none;">
+        <img src="{% static 'gif/delivery-food.gif' %}" alt="Delivery Boy Wheelie">
+        <!-- You can add a spinner or any loading animation here -->
+    </div>
+    <div class="restaurants-list" id="restaurants-list">
+        <!-- Restaurants will be populated here -->
+    </div>
+
+    <div class="pagination" id="pagination" style="display: none;">
+        <!-- Pagination buttons will be inserted here -->
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            let allRestaurants = []; // Global variable to store all restaurant data
+    
+            $('.city-link').on('click', function(e) {
+                e.preventDefault();
+                $('#header-content').html('');
+                const city = $(this).data('city');
+                $('#city-name').text(city);
+                $('.cities').hide();
+                $('#loading').show();
+    
+                $('#city-selection').show();
+                $('#search-input').show();
+    
+                $('#pagination').hide();
+                $('#restaurants-list').empty();
+    
+                fetchRestaurants(city, 1); // Initial fetch for page 1
+            });
+    
+            function fetchRestaurants(city, page) {
+                $.ajax({
+                    url: `/api/restaurants/${city}/`,
+                    method: 'GET',
+                    data: { page: page },
+                    success: function(data) {
+                        $('#loading').animate({
+                            left: '100%'
+                        }, 1000, function() {
+                            $(this).hide();
+                        });
+                        document.getElementById("restaurants-list").style.display = "flex";
+    
+                        // Add current page restaurants to allRestaurants array
+                        allRestaurants = allRestaurants.concat(data.restaurants);
+    
+                        // Sort restaurants alphabetically by name
+                        allRestaurants.sort((a, b) => a.name.localeCompare(b.name));
+    
+                        displayRestaurants(data.restaurants);
+    
+                        // Pagination buttons setup
+                        $('#pagination').empty().show();
+                        const range = 2; // Range of page numbers to display around the current page
+                        const startPage = Math.max(1, data.current_page - range);
+                        const endPage = Math.min(data.num_pages, data.current_page + range);
+    
+                        if (data.has_previous) {
+                            $('#pagination').append(`<button class="page-link" data-page="${data.current_page - 1}">Previous</button>`);
+                        }
+                        
+                        for (let i = startPage; i <= endPage; i++) {
+                            if (i == data.current_page) {
+                                $('#pagination').append(`<button class="page-link current" data-page="${i}">${i}</button>`);
+                            } else {
+                                $('#pagination').append(`<button class="page-link" data-page="${i}">${i}</button>`);
+                            }
+                        }
+                        
+                        if (data.has_next) {
+                            $('#pagination').append(`<button class="page-link" data-page="${data.current_page + 1}">Next</button>`);
+                        }
+    
+                        $('.page-link').on('click', function() {
+                            const page = $(this).data('page');
+                            fetchRestaurants(city, page);
+                        });
+    
+                        // Search functionality
+                        $('#search-input').on('input', function() {
+                            const searchString = $(this).val().trim().toLowerCase();
+                            const filteredRestaurants = allRestaurants.filter(function(restaurant) {
+                                return restaurant.name.toLowerCase().includes(searchString);
+                            });
+                            displayRestaurants(filteredRestaurants);
+                        });
+                    },
+                    error: function(error) {
+                        console.log('Error:', error);
+                    }
+                });
+            }
+    
+            function displayRestaurants(data) {
+                $('#restaurants-list').empty();
+                data.forEach(function(restaurant) {
+                    const restaurantCard = `
+                        <div class="restaurant-card">
+                            <img class="restaurant-image" src="{% static './images/restaurant.jpg' %}" alt="${restaurant.name}">
+                            <div class="restaurant-details">
+                                <h3 class="restaurant-name">${restaurant.name}</h3>
+                                <p class="restaurant-info">Total Orders  :   ${restaurant.total_orders}</p>
+                                <p class="restaurant-info">Min Item Price  :   ${restaurant.min_item_price}</p>
+                                <p class="restaurant-info">Highest Item Price  :   ${restaurant.max_item_price}</p>
+                                <p class="restaurant-info multiline">Address  :   ${restaurant.address}</p>
+                                <a href="/menu_items/${restaurant.user}/" class="restaurant-button">View Menu</a>
+                            </div>
+                        </div>
+                    `;
+                    $('#restaurants-list').append(restaurantCard);
+                });
+            }
+        });
+    </script>
+    
+{% endblock %}

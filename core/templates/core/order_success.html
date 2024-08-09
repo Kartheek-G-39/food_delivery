@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Order Placed Successfully!</h1>
+<p>Order ID: {{ order.id }}</p>
+<p>Total Price: {{ order.total_price }}</p>
+<p>Delivery Address: {{ order.delivery_address }}</p>
+{% if order.scheduled_time %}
+<p>Scheduled Time: {{ order.scheduled_time }}</p>
+{% endif %}
+{% endblock %}

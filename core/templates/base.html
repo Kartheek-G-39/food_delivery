@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% load core.filters %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FeedMe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" integrity="sha512-YWznzLvR9zCtXkjQgjQoWrVxBqdQvPvxPgNaaSiT6gooK2uYTQlbikeVgOWjXKcuGPelIoCtRKmykBoLFzTqpzMw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    {% block style %}
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% endblock %}
+</head>
+<body>
+          <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <div class="nav-logo">
+                <a class="navbar-brand" href="/">
+                    <img src="{% static 'images/main-logo.png' %}" alt="App Logo" style="width: 60px; height: 55px;">
+                </a>
+                <h1 onclick="window.location.href='/'">Epic Eaters</h1>
+                </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'home' %}">Home</a>
+                        </li>
+                        {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'notifications' %}">
+                                Notifications
+                                <span class="badge rounded-pill bg-danger text-white" id="notification-count">
+                                {{ request.user.notifications|unread_count }}  </span>
+                            </a>
+                        </li>
+                            {% if user.user_type != "delivery_boy" and user.user_type != "restaurant" %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'orders' %}">Orders
+                                        <span class="badge rounded-pill bg-danger text-white" id="notification-count">
+                                            {{ request.user.customer.orders|undelivered_count }}  </span>
+                                    </a>
+                                </li>
+                            {% elif user.user_type == "restaurant" %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'restaurant_management' %}">Edit Menu</a>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'orders' %}">Deliveries
+                                        <span class="badge rounded-pill bg-danger text-white" id="notification-count">
+                                            {{ request.user.delivery_boy.orders|undelivered_count }}  </span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                            </li>
+                            <li class="">
+                                <form id="logout-form" action="{% url 'logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn">Logout</button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login' %}">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'register' %}">Register</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    <div class="extra-header">
+        {% block header %}{% endblock %}
+        <div id="google_translate_element"> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+            <script type="text/javascript">
+                function googleTranslateElementInit() {
+                new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'en,es,fr,de,it,ja,ko,pt,ru,zh-CN,ar,hi,tr,nl,pl,fi,hu,sv,da,no,pt-PT,ro,cs,sk,sl,et,lt,lv,bg,mk,hr,sr,bs,uk,ka,ge,am,az,uz,ky,tg,mn,la,lo,vi,km,th,id,ms,in,my,ne,bn,si,ml,te,ta,gu,mr,pa,ko,sa,fil,en-GB,fr-CA,es-MX'}, 'google_translate_element');
+                }
+            </script>
+            <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        </div>
+        {% if user.user_type == "delivery_boy" %}
+        <div class="status-toggle">
+            <input type="checkbox" id="status-checkbox" class="status-checkbox" 
+                {% if user.delivery_boy.status == 'online' %}checked{% endif %}>
+            <label for="status-checkbox" class="toggle-label">
+                <span class="status-text">
+                    {% if user.delivery_boy.status == 'online' %}
+                        Online
+                    {% else %}
+                        Offline
+                    {% endif %}
+                </span>
+            </label>
+        </div>
+        {% endif %}
+
+    </div>
+
+    </header>
+    
+    <main class="container">     
+        {% block content %}{% endblock %}
+        <div class="toast-container"></div>
+        <div class="notification-container"> 
+            {% if unread_notifications %}
+            {% for message in unread_notifications %}
+                <a href="{% url 'mark_as_read' message.id %}">
+                    <div class="notification alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" role="alert">
+                        <button type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    
+                        {{ message.message }}
+                    </div>
+                </a>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-light">
+
+            <p>© 2024 Epic Eaters</p>
+        
+    </footer>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            function handleNotifications() {
+        // Fade in all notifications
+                $('.notification').fadeIn();
+
+                // Set timer to automatically fade out after 5 seconds
+                $('.notification').each(function() {
+                    const notification = $(this);
+                    setTimeout(function() {
+                        notification.fadeOut('slow', function() {
+                            $(this).remove();
+                        });
+                    }, 5000);
+                });
+
+                // Bind close button click event to remove notification immediately
+                $('.notification .close').on('click', function() {
+                    const notification = $(this).closest('.notification');
+                    notification.remove()
+                });
+            }
+
+            handleNotifications();
+            {% if user.user_type == "delivery_boy" %}
+            $(document).ready(function() {
+                $(".toast").fadeIn().delay(5000).fadeOut();  // Show for 5 seconds and fade out
+            });
+            const statusCheckbox = document.getElementById('status-checkbox');
+            const statusText = document.querySelector('.status-text');
+
+            statusCheckbox.addEventListener('change', function() {
+                const isChecked = statusCheckbox.checked;
+                const newStatus = isChecked ? 'online' : 'offline';
+
+                const url = `{% url 'change_delivery_boy_status' 'STATUS_PLACEHOLDER' %}`.replace('STATUS_PLACEHOLDER', newStatus);
+
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}' // Ensure you pass the CSRF token
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        statusText.textContent = isChecked ? 'Online' : 'Offline';
+                    } else {
+                        // Handle error
+                        showToast(data.message, 'error'); // Show error toast  
+                        statusCheckbox.checked = !isChecked; // Revert the checkbox state
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to update status');
+                    statusCheckbox.checked = !isChecked; // Revert the checkbox state
+                });
+            });
+            function showToast(message, type) {
+                const toast = $(`
+                    <div class="toast alert alert-${type}" role="alert">
+                        <button type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        ${message}
+                    </div>
+                `);
+
+                // Append toast to container and handle close button functionality
+                $('.toast-container').append(toast);
+
+                // Fade in the toast
+                toast.fadeIn();
+
+                // Set a timer to automatically fade out after 5 seconds
+                setTimeout(function() {
+                    toast.fadeOut('slow', function() {
+                        $(this).remove();
+                    });
+                }, 5000);
+
+                // Bind close button click event to remove the toast immediately
+                toast.find('.close').on('click', function() {
+                    toast.remove();
+                });
+            }
+
+            {% endif %}
+
+        });
+
+    </script>
+    
+</body>
+</html>

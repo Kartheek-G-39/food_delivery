@@ -1,0 +1,59 @@
+/* view_orders.css */
+
+h1 {
+    color: #76151e;
+    font-size: 3em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.order-container {
+    border: 1px solid #ccc;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.order-details {
+    margin-bottom: 10px;
+}
+.order-details strong {
+    font-weight: bold;
+    margin-right: 5px;
+}
+.order-items {
+    margin-top: 10px;
+}
+.order-items ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+.order-items li {
+    margin-bottom: 5px;
+    padding: 5px;
+    background-color: #fff;
+    border: 1px solid #eee;
+}
+.feedback {
+    margin-top: 10px;
+}
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+.pagination a {
+    padding: 5px 10px;
+    margin: 0 5px;
+    text-decoration: none;
+    color: #333;
+    border: 1px solid #ccc;
+}
+.no-orders {
+    margin-top: 20px;
+    text-align: center;
+}

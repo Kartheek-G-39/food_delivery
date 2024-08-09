@@ -1,0 +1,105 @@
+{% if item.rating %}
+    <strong>Rating:</strong> {{ item.rating }}<br>
+    <strong>Feedback:</strong> {{ item.feedback }}<br>
+{% elif user.user_type == "customer" %}
+    <form id="feedbackForm" method="post" action="{% url 'order_detail' order.id %}">
+        {% csrf_token %}
+        <input type="hidden" value="{{item.id}}" name="orderitemid"></input>
+        <ul class="feedback">
+            <li class="angry" data-rating="1">
+                <div>
+                    <svg class="eye left">
+                        <use xlink:href="#eye"></use>
+                    </svg>
+                    <svg class="eye right">
+                        <use xlink:href="#eye"></use>
+                    </svg>
+                    <svg class="mouth">
+                        <use xlink:href="#mouth"></use>
+                    </svg>
+                </div>
+            </li>
+            <li class="sad" data-rating="2">
+                <div>
+                    <svg class="eye left">
+                        <use xlink:href="#eye"></use>
+                    </svg>
+                    <svg class="eye right">
+                        <use xlink:href="#eye"></use>
+                    </svg>
+                    <svg class="mouth">
+                        <use xlink:href="#mouth"></use>
+                    </svg>
+                </div>
+            </li>
+            <li class="ok" data-rating="3">
+                <div></div>
+            </li>
+            <li class="good" data-rating="4">
+                <div>
+                    <svg class="eye left">
+                        <use xlink:href="#eye"></use>
+                    </svg>
+                    <svg class="eye right">
+                        <use xlink:href="#eye"></use>
+                    </svg>
+                    <svg class="mouth">
+                        <use xlink:href="#mouth"></use>
+                    </svg>
+                </div>
+            </li>
+            <li class="happy" data-rating="5">
+                <div>
+                    <svg class="eye left">
+                        <use xlink:href="#eye"></use>
+                    </svg>
+                    <svg class="eye right">
+                        <use xlink:href="#eye"></use>
+                    </svg>
+                </div>
+            </li>
+        </ul>
+                
+        <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+            <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7 4" id="eye">
+                <path d="M1,1 C1.83333333,2.16666667 2.66666667,2.75 3.5,2.75 C4.33333333,2.75 5.16666667,2.16666667 6,1"></path>
+            </symbol>
+            <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 7" id="mouth">
+                <path d="M1,5.5 C3.66666667,2.5 6.33333333,1 9,1 C11.6666667,1 14.3333333,2.5 17,5.5"></path>
+            </symbol>
+        </svg>
+        
+        <!-- Feedback text box -->
+        <label for="feedbackText">Feedback:</label><br>
+        <textarea id="feedbackText" name="feedbackText" rows="4" cols="50"></textarea><br>
+        
+        <!-- Rating input -->
+        <input type="hidden" id="feedbackRating" name="feedbackRating" value="">
+
+        <!-- Hidden input for order item id -->
+        <input type="hidden" name="order_item_id" value="{{ item.id }}">
+
+        <!-- Submit button -->
+        <button type="submit">Submit Rating and Feedback</button>
+    </form>
+{% endif %}
+
+
+<script>
+    // Function to handle emoji clicks
+    document.querySelectorAll('.feedback li').forEach(entry => entry.addEventListener('click', e => {
+        // Remove 'active' class from all emojis
+        document.querySelectorAll('.feedback li').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Add 'active' class to clicked emoji
+        entry.classList.add('active');
+        
+        // Set hidden input value for rating
+        const rating = entry.getAttribute('data-rating');
+        document.getElementById('feedbackRating').value = rating;
+        
+        e.preventDefault();
+    }));
+</script>

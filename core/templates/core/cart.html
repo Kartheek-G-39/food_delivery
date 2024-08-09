@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Your Cart</h1>
+<ul>
+    {% for item in cart_items %}
+    <li>{{ item.menu_item.item }} - {{ item.quantity }} x {{ item.menu_item.price }}</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'place_order' %}">Place Order</a>
+{% endblock %}

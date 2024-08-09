@@ -1,0 +1,107 @@
+/* Container and Row Styles */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Sidebar and Content Styles */
+.left-sidebar,
+.right-content {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.left-sidebar {
+  flex: 1 1 30%;
+}
+
+.right-content {
+  flex: 1 1 65%;
+}
+
+/* Headings */
+h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Order and Notification List Styles */
+.order-list, .notification-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.order-list li, .notification-list li {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.notification-type {
+  font-weight: bold;
+  color: #76151e;
+}
+
+/* Past Orders Styles */
+.past-orders ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.past-orders li {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  margin: 0 5px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:hover {
+  background-color: #ddd;
+}
+
+.pagination .current-page {
+  font-weight: bold;
+  border-bottom: 2px solid #76151e;
+}
+
+/* General Button Styles */
+
+
+  
+a.button {
+  background-color: #76151e;
+  color: #fff;
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  width: 100%;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+a.button:hover {
+  background-color: #ff5722;
+}
