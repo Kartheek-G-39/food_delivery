@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-jy*zf-f1pw^@q(!*qwh##$^srncs^=#m&6-t8eq_+zm@io-j1&
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*',"https://fooddelivery.azurewebsites.net"]
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'core.CustomUser'
 # Application definition
