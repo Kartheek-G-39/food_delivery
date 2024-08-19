@@ -71,10 +71,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = "food_delivery.urls"
 
 
-CORS_ALLOWED_ORIGINS = [
-    "https://fooddelivery.azurewebsites.net",
-    # Add other trusted domains here
-]
+CORS_ORIGIN_ALLOW_ALL = True
 
 
 TEMPLATES = [
