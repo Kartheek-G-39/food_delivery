@@ -56,6 +56,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -68,6 +69,13 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "food_delivery.urls"
+
+
+CORS_ALLOWED_ORIGINS = [
+    "https://fooddelivery.azurewebsites.net",
+    # Add other trusted domains here
+]
+
 
 TEMPLATES = [
     {
