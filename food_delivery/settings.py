@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'celery',
     'channels',
     'django_redis',
+    'corsheaders',
     'rest_framework',
     'django_ratelimit'
     
