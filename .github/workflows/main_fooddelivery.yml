@@ -31,7 +31,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Collect static
-        run: python manage.py collectstatic --noinput -v 3
+        run: python manage.py collectstatic
 
 
         
