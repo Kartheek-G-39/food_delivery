@@ -161,23 +161,23 @@ CHANNEL_LAYERS = {
 }
 
 # Optional: If you are using Celery with Channels, configure Celery to use Redis as well
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/1'  # Adjust database number (1) as needed
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
-CELERY_TASK_TRACK_STARTED = True
+# CELERY_BROKER_URL = 'redis://127.0.0.1:6379/1'  # Adjust database number (1) as needed
+# CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
+# CELERY_TASK_TRACK_STARTED = True
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'core/static'),
 ]
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379/1',  # Adjust database number (1) as needed
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        },
-    },
-}
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://127.0.0.1:6379/1',  # Adjust database number (1) as needed
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         },
+#     },
+# }
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 SESSION_CACHE_ALIAS = 'default'
