@@ -73,6 +73,9 @@ ROOT_URLCONF = "food_delivery.urls"
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://fooddelivery.azurewebsites.net",
+]
 
 TEMPLATES = [
     {
